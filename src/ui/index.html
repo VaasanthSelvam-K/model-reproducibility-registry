@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model-Reproducibility Registry | E-Commerce Recommendation Audit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/ui/styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo-badge">MRR</div>
+      <div>
+        <h1>Model-Reproducibility Registry</h1>
+        <p class="subtitle">E-Commerce Recommendation Lineage, Audit Reconstruction & Stream Fault-Tolerance</p>
+      </div>
+    </div>
+    <div class="header-status">
+      <span class="status-indicator live"></span>
+      <span class="status-text">Active Model: <strong id="header-model-ver">v1.0.0</strong></span>
+      <span class="badge audit-target">Target: 100% Reproducible</span>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('store')">
+      <span class="icon">🛒</span> Live E-Commerce Store
+    </button>
+    <button class="tab-btn" onclick="switchTab('audit')">
+      <span class="icon">🔍</span> 1-Click Audit Inspector
+    </button>
+    <button class="tab-btn" onclick="switchTab('chaos')">
+      <span class="icon">⚡</span> Adversarial Chaos Engine
+    </button>
+    <button class="tab-btn" onclick="switchTab('lineage')">
+      <span class="icon">🌳</span> Provenance DAG & Metrics
+    </button>
+  </nav>
+
+  <!-- Main Content Container -->
+  <main class="main-container">
+
+    <!-- TAB 1: Live E-Commerce Recommendation Store -->
+    <section id="tab-store" class="tab-pane active">
+      <div class="grid-2-col">
+        <!-- User Context Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2>User Interaction Context</h2>
+            <span class="pill">Point-in-Time Features</span>
+          </div>
+          <p class="card-desc">Select an active user to query historical engagement and generate personalized product recommendations with complete provenance logging.</p>
+
+          <div class="form-group">
+            <label for="user-select">Select Customer ID:</label>
+            <select id="user-select" class="input-field" onchange="previewUserFeatures()">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+
+          <div class="feature-pills" id="user-features-display">
+            <div class="feature-box">
+              <span class="lbl">Engagement Score</span>
+              <span class="val" id="feat-eng">--</span>
+            </div>
+            <div class="feature-box">
+              <span class="lbl">Preferred Category</span>
+              <span class="val" id="feat-cat">--</span>
+            </div>
+            <div class="feature-box">
+              <span class="lbl">Past Purchases</span>
+              <span class="val" id="feat-purchases">--</span>
+            </div>
+            <div class="feature-box">
+              <span class="lbl">Total Historical Spend</span>
+              <span class="val" id="feat-spend">--</span>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" onclick="requestRecommendations()">
+            ⚡ Generate Personalized Recommendations
+          </button>
+        </div>
+
+        <!-- Latest Inference Result Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Generated Prediction & Audit Log</h2>
+            <span class="badge" id="inference-status-badge">Awaiting Query</span>
+          </div>
+
+          <div id="inference-meta" class="meta-box hidden">
+            <div class="meta-row">
+              <span>Inference ID:</span>
+              <code id="inf-id-disp">--</code>
+              <button class="btn-sm" onclick="copyInferenceId()">Copy</button>
+            </div>
+            <div class="meta-row">
+              <span>Timestamp:</span>
+              <span id="inf-time-disp">--</span>
+            </div>
+            <div class="meta-row">
+              <span>Active Model SHA-256:</span>
+              <code id="inf-model-sha">--</code>
+            </div>
+            <button class="btn btn-outline" style="margin-top: 8px;" onclick="goToAuditWithCurrent()">
+              🔬 Audit & Verify This Prediction Now ➔
+            </button>
+          </div>
+
+          <div id="recommendations-container" class="rec-list">
+            <div class="placeholder-msg">Select a user and click "Generate Personalized Recommendations" to view model output.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: 1-Click Audit Inspector -->
+    <section id="tab-audit" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <h2>Audit & Reconstruction Inspector</h2>
+          <span class="pill purple">Bit-Exact Time-Travel</span>
+        </div>
+        <p class="card-desc">Given any historical prediction's <code>inference_id</code>, this engine reloads the exact model artifact (validating SHA-256), reconstructs features as of that exact millisecond, re-computes scores, and verifies 100% reproducibility.</p>
+
+        <div class="audit-input-bar">
+          <input type="text" id="audit-input-id" class="input-field" placeholder="Enter inference_id (e.g., inf_hist_1001)">
+          <button class="btn btn-primary" onclick="runAudit()">🔬 Reproduce & Audit</button>
+          <select id="quick-pick-inferences" class="input-field select-sm" onchange="pickHistoricalInference()">
+            <option value="">-- Or Pick Recent Historical Inference --</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Audit Results View -->
+      <div id="audit-results-panel" class="hidden">
+        <!-- Verification Banner -->
+        <div class="audit-banner pass" id="audit-banner">
+          <div class="banner-icon">✓</div>
+          <div>
+            <h3 id="banner-title">AUDIT PASSED: 100.0% Bit-Exact Reproducibility</h3>
+            <p id="banner-subtitle">All feature values, model weights, and ranking scores matched the historical state with 0.00000000 score delta.</p>
+          </div>
+          <button class="btn btn-secondary" onclick="exportAuditJSON()">📥 Export Audit Certificate</button>
+        </div>
+
+        <div class="grid-2-col" style="margin-top: 20px;">
+          <!-- Provenance Lineage Trail -->
+          <div class="card">
+            <h3>🔗 Complete Provenance Lineage</h3>
+            <div class="lineage-trail">
+              <div class="trail-step">
+                <div class="step-num">1</div>
+                <div class="step-info">
+                  <strong>Training Dataset Snapshot</strong>
+                  <div class="val" id="audit-ds-name">--</div>
+                  <div class="hash">SHA-256: <code id="audit-ds-sha">--</code></div>
+                </div>
+              </div>
+              <div class="trail-step">
+                <div class="step-num">2</div>
+                <div class="step-info">
+                  <strong>Source Code Commit</strong>
+                  <div class="val" id="audit-git-branch">main</div>
+                  <div class="hash">Git SHA: <code id="audit-git-sha">--</code></div>
+                </div>
+              </div>
+              <div class="trail-step">
+                <div class="step-num">3</div>
+                <div class="step-info">
+                  <strong>Model Artifact & Weights</strong>
+                  <div class="val" id="audit-model-tag">--</div>
+                  <div class="hash">Artifact SHA-256: <code id="audit-model-sha">--</code></div>
+                </div>
+              </div>
+              <div class="trail-step">
+                <div class="step-num">4</div>
+                <div class="step-info">
+                  <strong>Governance & Approval</strong>
+                  <div class="val" id="audit-approver">--</div>
+                  <div class="status badge-green" id="audit-appr-status">APPROVED</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Side by Side Score Verification -->
+          <div class="card">
+            <h3>⚖️ Original vs. Reconstructed Scoring Comparison</h3>
+            <table class="audit-table">
+              <thead>
+                <tr>
+                  <th>Item Name</th>
+                  <th>Original Score</th>
+                  <th>Reconstructed</th>
+                  <th>Delta</th>
+                  <th>Match Status</th>
+                </tr>
+              </thead>
+              <tbody id="score-comparison-tbody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: Adversarial Chaos Simulator -->
+    <section id="tab-chaos" class="tab-pane">
+      <div class="grid-2-col">
+        <div class="card">
+          <div class="card-header">
+            <h2>Adversarial Event Stream Injection</h2>
+            <span class="pill red">Chaos Engineering</span>
+          </div>
+          <p class="card-desc">Inject corrupted, delayed, duplicate, or scrambled event packets directly into the live ingestion stream to verify that the registry prevents state poisoning and duplicate versioning.</p>
+
+          <div class="form-group">
+            <label for="chaos-scenario">Select Chaos Scenario:</label>
+            <select id="chaos-scenario" class="input-field">
+              <option value="duplicate">Duplicate Events (Replay Attack / Duplicate Packets)</option>
+              <option value="delayed">Delayed Events (Late-arriving user purchases)</option>
+              <option value="out_of_order">Out-of-Order Stream (Scrambled timestamp sequence)</option>
+              <option value="mixed">Mixed Adversarial Assault (All vectors combined)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="chaos-count">Number of Events to Inject: <span id="chaos-count-val">30</span></label>
+            <input type="range" id="chaos-count" min="10" max="60" value="30" oninput="document.getElementById('chaos-count-val').innerText = this.value">
+          </div>
+
+          <button class="btn btn-danger" onclick="triggerChaos()">
+            🔥 Inject Adversarial Events
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Stream Resilience Report</h2>
+            <span class="badge" id="chaos-badge">Ready for Stress Test</span>
+          </div>
+
+          <div class="metrics-grid" id="chaos-metrics">
+            <div class="metric-card">
+              <div class="metric-val" id="chaos-attempted">0</div>
+              <div class="metric-lbl">Total Attempted</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val text-green" id="chaos-inserted">0</div>
+              <div class="metric-lbl">Safely Ingested</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val text-yellow" id="chaos-duplicates">0</div>
+              <div class="metric-lbl">Duplicates Intercepted</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val text-green" id="chaos-corrupted">0.0%</div>
+              <div class="metric-lbl">State Corruption Rate</div>
+            </div>
+          </div>
+
+          <div class="explanation-box" id="chaos-explanation">
+            <strong>System Recovery Mechanism:</strong>
+            <p>The ingestion engine calculates an immutable SHA-256 fingerprint for every interaction tuple <code>(entity_id, type, value, timestamp)</code>. Duplicate events are silently intercepted before entering the feature store, ensuring historical integrity is preserved without raising unhandled errors.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Provenance DAG & Review Metrics -->
+    <section id="tab-lineage" class="tab-pane">
+      <div class="stats-banner">
+        <div class="stat-box">
+          <div class="stat-num text-green" id="stat-reproducible">100.0%</div>
+          <div class="stat-title">Target Reproducibility Rate</div>
+          <div class="stat-sub">Baseline: 18.5%</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num text-green" id="stat-corruption">0.0%</div>
+          <div class="stat-title">Adversarial Corruption Rate</div>
+          <div class="stat-sub">Zero state poisoning</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-datasets">--</div>
+          <div class="stat-title">Registered Datasets</div>
+          <div class="stat-sub">SHA-256 Snapshots</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-inferences">--</div>
+          <div class="stat-title">Audited Inferences</div>
+          <div class="stat-sub">Immutable Point-in-time Logs</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 24px;">
+        <div class="card-header">
+          <h2>Architectural Provenance DAG (Data ➔ Code ➔ Model ➔ Deployment ➔ Audit)</h2>
+        </div>
+        <div class="dag-visualizer">
+          <div class="dag-node node-data">
+            <div class="node-badge">DATA</div>
+            <strong>Dataset Version</strong>
+            <div class="node-meta">Interactions v1.0.0</div>
+            <div class="node-hash">SHA-256 Verified</div>
+          </div>
+          <div class="dag-arrow">➔</div>
+          <div class="dag-node node-code">
+            <div class="node-badge">CODE</div>
+            <strong>Git Commit</strong>
+            <div class="node-meta">Branch: main</div>
+            <div class="node-hash">SHA: a1b2c3d4...</div>
+          </div>
+          <div class="dag-arrow">➔</div>
+          <div class="dag-node node-model">
+            <div class="node-badge">MODEL</div>
+            <strong>Artifact & Params</strong>
+            <div class="node-meta">CollaborativeHybrid v1</div>
+            <div class="node-hash">Artifact SHA-256 Intact</div>
+          </div>
+          <div class="dag-arrow">➔</div>
+          <div class="dag-node node-gate">
+            <div class="node-badge">GATE</div>
+            <strong>Approval Sign-off</strong>
+            <div class="node-meta">Chief AI Auditor</div>
+            <div class="node-hash">Status: APPROVED</div>
+          </div>
+          <div class="dag-arrow">➔</div>
+          <div class="dag-node node-deploy">
+            <div class="node-badge">PROD</div>
+            <strong>Deployment</strong>
+            <div class="node-meta">Environment: Active</div>
+            <div class="node-hash">Point-in-Time Audited</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/src/ui/app.js"></script>
+</body>
+</html>

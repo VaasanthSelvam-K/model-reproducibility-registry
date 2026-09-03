@@ -1,0 +1,122 @@
+[
+  {
+    "item_id": "prod_201",
+    "name": "Wireless Noise-Cancelling Headphones",
+    "category": "electronics",
+    "price": 199.99
+  },
+  {
+    "item_id": "prod_202",
+    "name": "Mechanical Gaming Keyboard RGB",
+    "category": "electronics",
+    "price": 129.5
+  },
+  {
+    "item_id": "prod_203",
+    "name": "Ultra-Wide 34-inch Curved Monitor",
+    "category": "electronics",
+    "price": 449.0
+  },
+  {
+    "item_id": "prod_204",
+    "name": "Smart Fitness Watch V2",
+    "category": "electronics",
+    "price": 179.0
+  },
+  {
+    "item_id": "prod_205",
+    "name": "Organic Cotton Slim-Fit T-Shirt",
+    "category": "apparel",
+    "price": 29.99
+  },
+  {
+    "item_id": "prod_206",
+    "name": "Classic Denim Jacket",
+    "category": "apparel",
+    "price": 79.95
+  },
+  {
+    "item_id": "prod_207",
+    "name": "Breathable Running Sneakers",
+    "category": "apparel",
+    "price": 110.0
+  },
+  {
+    "item_id": "prod_208",
+    "name": "Waterproof Trench Coat",
+    "category": "apparel",
+    "price": 145.0
+  },
+  {
+    "item_id": "prod_209",
+    "name": "Stainless Steel French Press",
+    "category": "home",
+    "price": 34.9
+  },
+  {
+    "item_id": "prod_210",
+    "name": "Ergonomic Memory Foam Pillow",
+    "category": "home",
+    "price": 49.99
+  },
+  {
+    "item_id": "prod_211",
+    "name": "Smart Ceramic Air Fryer 5L",
+    "category": "home",
+    "price": 89.99
+  },
+  {
+    "item_id": "prod_212",
+    "name": "Minimalist Oak Wood Desk Lamp",
+    "category": "home",
+    "price": 39.5
+  },
+  {
+    "item_id": "prod_213",
+    "name": "Designing Data-Intensive Applications",
+    "category": "books",
+    "price": 42.0
+  },
+  {
+    "item_id": "prod_214",
+    "name": "Clean Code: Agile Software Craftsmanship",
+    "category": "books",
+    "price": 38.5
+  },
+  {
+    "item_id": "prod_215",
+    "name": "Machine Learning Engineering in Action",
+    "category": "books",
+    "price": 47.95
+  },
+  {
+    "item_id": "prod_216",
+    "name": "Introduction to Statistical Learning",
+    "category": "books",
+    "price": 35.0
+  },
+  {
+    "item_id": "prod_217",
+    "name": "USB-C Multi-Port Hub 7-in-1",
+    "category": "electronics",
+    "price": 45.0
+  },
+  {
+    "item_id": "prod_218",
+    "name": "Polarized UV Aviator Sunglasses",
+    "category": "apparel",
+    "price": 55.0
+  },
+  {
+    "item_id": "prod_219",
+    "name": "Aromatherapy Essential Oil Diffuser",
+    "category": "home",
+    "price": 28.0
+  },
+  {
+    "item_id": "prod_220",
+    "name": "Python Crash Course 3rd Edition",
+    "category": "books",
+    "price": 31.5
+  }
+]
