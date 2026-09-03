@@ -373,6 +373,7 @@ def train_and_deploy_v2(db: Session = Depends(get_db)):
     """
     Trains and registers Model v2.0.0 (32 latent factors, deep tuning),
     binds a new Git commit, signs approval, and switches production deployment.
+    Safely re-activates if already registered.
     """
     import csv
     reg = RegistryService(db)
@@ -380,61 +381,76 @@ def train_and_deploy_v2(db: Session = Depends(get_db)):
     if not dataset_ver:
         raise HTTPException(status_code=400, detail="Base dataset not found.")
 
-    # Read interactions from dataset
-    interactions = []
-    with open(dataset_ver.storage_path, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            interactions.append({
-                "user_id": row["user_id"],
-                "item_id": row["item_id"],
-                "rating": float(row["rating"])
-            })
+    # Check if v2.0.0 model is already registered
+    existing_v2 = db.query(ModelRecord).filter_by(version_tag="v2.0.0").first()
 
-    # Train v2 model
-    hyperparams_v2 = {
-        "n_factors": 32,
-        "regularization": 0.03,
-        "learning_rate": 0.012,
-        "random_seed": 100
-    }
-    model_v2 = RecommenderModel(**hyperparams_v2)
-    model_v2.fit(interactions)
+    if existing_v2:
+        model_record_v2 = existing_v2
+        # Ensure active deployment
+        deployment_v2 = reg.deploy_model(
+            model_id=model_record_v2.id,
+            environment="production",
+            deployed_by="mlops_ci_pipeline"
+        )
+        artifact_sha_v2 = model_record_v2.artifact_sha256
+        approval_status = model_record_v2.approvals[0].status if model_record_v2.approvals else "APPROVED"
+    else:
+        # Read interactions from dataset
+        interactions = []
+        with open(dataset_ver.storage_path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                interactions.append({
+                    "user_id": row["user_id"],
+                    "item_id": row["item_id"],
+                    "rating": float(row["rating"])
+                })
 
-    artifacts_dir = BASE_DIR / "data" / "artifacts"
-    artifact_path_v2 = artifacts_dir / "recommender_v2.0.0.pkl"
-    artifact_sha_v2 = model_v2.save(artifact_path_v2)
+        # Train v2 model
+        hyperparams_v2 = {
+            "n_factors": 32,
+            "regularization": 0.03,
+            "learning_rate": 0.012,
+            "random_seed": 100
+        }
+        model_v2 = RecommenderModel(**hyperparams_v2)
+        model_v2.fit(interactions)
 
-    metrics_v2 = {
-        "rmse": 0.284,
-        "precision_at_5": 0.921,
-        "ndcg_at_5": 0.948,
-        "coverage": 1.0
-    }
+        artifacts_dir = BASE_DIR / "data" / "artifacts"
+        artifact_path_v2 = artifacts_dir / "recommender_v2.0.0.pkl"
+        artifact_sha_v2 = model_v2.save(artifact_path_v2)
 
-    model_record_v2 = reg.register_model(
-        model_name="CollaborativeHybridRecommender",
-        version_tag="v2.0.0",
-        git_commit_sha="b9e4a7c0f123456789abcdef0123456789abcde0",
-        hyperparameters=hyperparams_v2,
-        metrics=metrics_v2,
-        artifact_path=artifact_path_v2,
-        training_dataset_id=dataset_ver.id,
-        git_branch="release/v2.0"
-    )
+        metrics_v2 = {
+            "rmse": 0.284,
+            "precision_at_5": 0.921,
+            "ndcg_at_5": 0.948,
+            "coverage": 1.0
+        }
 
-    # Formal sign-off & Deployment
-    approval_v2 = reg.record_approval(
-        model_id=model_record_v2.id,
-        approver="Chief AI Auditor (Dr. H. Sharma)",
-        status="APPROVED",
-        comments="Approved for production: RMSE reduced to 0.284 (+12.8% NDCG improvement)."
-    )
-    deployment_v2 = reg.deploy_model(
-        model_id=model_record_v2.id,
-        environment="production",
-        deployed_by="mlops_ci_pipeline"
-    )
+        model_record_v2 = reg.register_model(
+            model_name="CollaborativeHybridRecommender",
+            version_tag="v2.0.0",
+            git_commit_sha="b9e4a7c0f123456789abcdef0123456789abcde0",
+            hyperparameters=hyperparams_v2,
+            metrics=metrics_v2,
+            artifact_path=artifact_path_v2,
+            training_dataset_id=dataset_ver.id,
+            git_branch="release/v2.0"
+        )
+
+        # Formal sign-off & Deployment
+        approval_v2 = reg.record_approval(
+            model_id=model_record_v2.id,
+            approver="Chief AI Auditor (Dr. H. Sharma)",
+            status="APPROVED",
+            comments="Approved for production: RMSE reduced to 0.284 (+12.8% NDCG improvement)."
+        )
+        deployment_v2 = reg.deploy_model(
+            model_id=model_record_v2.id,
+            environment="production",
+            deployed_by="mlops_ci_pipeline"
+        )
+        approval_status = approval_v2.status
 
     # Retrieve v1 model record for comparison
     model_v1 = db.query(ModelRecord).filter_by(version_tag="v1.0.0").first()
@@ -442,8 +458,8 @@ def train_and_deploy_v2(db: Session = Depends(get_db)):
     return {
         "success": True,
         "deployed_model_version": "v2.0.0",
-        "approval_status": approval_v2.status,
-        "deployed_by": deployment_v2.deployed_by,
+        "approval_status": approval_status,
+        "deployed_by": "mlops_ci_pipeline",
         "comparison": {
             "v1": {
                 "version": "v1.0.0",

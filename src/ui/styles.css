@@ -133,22 +133,43 @@ body {
   box-shadow: var(--glow-green);
 }
 
-/* Navigation Tabs */
+/* Custom Sleek Cyber Scrollbar (Eliminates ugly Windows default grey scrollbars) */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #020408;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.35);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.7);
+}
+
+/* Navigation Tabs - Wraps cleanly with zero horizontal scrollbar */
 .cyber-nav {
   display: flex;
-  gap: 6px;
-  padding: 10px 36px;
-  background: rgba(3, 7, 18, 0.9);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 36px;
+  background: rgba(3, 7, 18, 0.95);
   border-bottom: 1px solid var(--border-dim);
-  overflow-x: auto;
+  overflow: hidden;
 }
 
 .nav-tab {
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  padding: 8px 16px;
+  background: #020612;
+  border: 1px solid var(--border-dim);
+  color: var(--text-terminal);
+  font-size: 0.78rem;
+  padding: 8px 14px;
   border-radius: 4px;
   cursor: pointer;
   letter-spacing: 0.05em;
@@ -158,15 +179,115 @@ body {
 
 .nav-tab:hover {
   color: var(--neon-cyan);
-  background: rgba(0, 240, 255, 0.04);
+  border-color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.06);
 }
 
 .nav-tab.active {
   color: #000;
   background: var(--neon-cyan);
-  font-weight: 700;
+  font-weight: 800;
   box-shadow: var(--glow-cyan);
   border-color: var(--neon-cyan);
+}
+
+/* In-App Cyber HUD Modal Notification (Replaces ugly browser alerts) */
+.cyber-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(2, 4, 10, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.cyber-modal-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.cyber-modal {
+  background: #070d1a;
+  border: 1px solid var(--neon-cyan);
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 540px;
+  padding: 24px;
+  transform: scale(0.95);
+  transition: transform 0.2s ease;
+}
+
+.cyber-modal.hazard {
+  border-color: var(--hazard-red);
+  box-shadow: var(--glow-red);
+}
+
+.cyber-modal.success {
+  border-color: var(--neon-green);
+  box-shadow: var(--glow-green);
+}
+
+.cyber-modal-overlay.show .cyber-modal {
+  transform: scale(1);
+}
+
+.cyber-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-dim);
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+}
+
+.cyber-modal-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--neon-cyan);
+}
+
+.cyber-modal.hazard .cyber-modal-title { color: var(--hazard-red); }
+.cyber-modal.success .cyber-modal-title { color: var(--neon-green); }
+
+.cyber-modal-body {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  white-space: pre-line;
+}
+
+.cyber-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cyber-modal-btn {
+  padding: 8px 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-radius: 4px;
+  cursor: pointer;
+  background: var(--neon-cyan);
+  color: #000;
+  border: none;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.cyber-modal-btn:hover {
+  filter: brightness(1.2);
 }
 
 /* Layout */

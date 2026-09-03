@@ -386,6 +386,20 @@
 
   </main>
 
+  <!-- Cyber HUD Modal Notification (Zero ugly browser popups) -->
+  <div id="cyber-modal-overlay" class="cyber-modal-overlay" onclick="closeCyberAlert(event)">
+    <div class="cyber-modal" id="cyber-modal-card" onclick="event.stopPropagation()">
+      <div class="cyber-modal-header">
+        <div class="cyber-modal-title" id="cyber-modal-title">[SYSTEM_NOTIFICATION]</div>
+        <button class="hud-tag" style="cursor:pointer;" onclick="closeCyberAlert()">✕</button>
+      </div>
+      <div class="cyber-modal-body" id="cyber-modal-body">--</div>
+      <div class="cyber-modal-actions">
+        <button class="cyber-modal-btn" onclick="closeCyberAlert()">[ACKNOWLEDGE_DISMISS]</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/src/ui/app.js"></script>
 </body>
 </html>
