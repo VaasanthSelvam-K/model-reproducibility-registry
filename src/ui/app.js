@@ -74,8 +74,17 @@ async function requestRecommendations() {
     });
 
     if (!res.ok) {
-      const err = await res.json();
-      container.innerHTML = `<div class="card-desc" style="color: #ff0055;">ERROR: ${err.detail}</div>`;
+      let errMsg = "Request rejected";
+      try {
+        const err = await res.json();
+        errMsg = err.detail || JSON.stringify(err);
+      } catch {
+        errMsg = await res.text();
+      }
+      container.innerHTML = `<div class="card-desc" style="color: #ff0055; padding: 20px 10px; line-height: 1.6;">
+        <strong style="color: #ff0055;">[SYSTEM INTERCEPTION]:</strong><br>${errMsg}
+      </div>`;
+      showCyberAlert("INFERENCE_ALERT", errMsg, "hazard");
       return;
     }
 

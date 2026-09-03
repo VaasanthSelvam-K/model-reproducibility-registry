@@ -105,7 +105,27 @@ def make_recommendation(req: RecommendRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="No active model deployment found in registry.")
 
     model_record: ModelRecord = active_deploy.model
-    model = RecommenderModel.load(Path(model_record.artifact_path))
+    artifact_path = Path(model_record.artifact_path)
+
+    # Cryptographic Checksum Pre-flight Verification
+    if not artifact_path.exists():
+        raise HTTPException(status_code=500, detail=f"Physical model file missing at {artifact_path}")
+
+    current_sha = RegistryService.compute_file_hash(artifact_path)
+    if current_sha != model_record.artifact_sha256:
+        raise HTTPException(
+            status_code=403,
+            detail="[SECURITY_INTERCEPTION] Active model artifact on disk is corrupted or tampered with (SHA-256 Mismatch). Inferences locked until restored in Tab 03 [TAMPER_LAB]."
+        )
+
+    try:
+        model = RecommenderModel.load(artifact_path)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"[DESERIALIZATION_FAILED] Could not load model artifact: {str(e)}"
+        )
+
     feature_store = PointInTimeFeatureStore(db)
 
     now = datetime.utcnow()
