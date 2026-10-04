@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "model-reproducibility-registry"
+version = "2.0.0"
+description = "Enterprise Model-Reproducibility Registry with Point-in-Time Feature Store and Statistical Drift Shield"
+authors = [{ name = "C28 Capstone Team" }]
+requires-python = ">=3.9"
+readme = "README.md"
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "pydantic>=2.5.0",
+    "sqlalchemy>=2.0.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.10.0",
+    "scikit-learn>=1.3.0",
+    "pytest>=7.4.0",
+    "plotly>=5.18.0"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v -s"

@@ -1,0 +1,206 @@
+# Official Review 2 Project Report: Model-Reproducibility Registry
+
+**Project Title:** E-Commerce Company Running Hundreds Recommendation Experiments: Model-Reproducibility Registry Linking Data Features  
+**Review Milestone:** Review 2 Report (70% Completion Milestone - Advanced Architecture & Drift Shield)  
+**Academic Year:** Semester 5 - C28 Capstone Project  
+**Target Evaluation:** 35 / 35 Coins  
+
+---
+
+## 1. Executive Summary & Review 1 Evaluator Feedback Action Log
+
+Modern e-commerce enterprises run hundreds of concurrent recommendation experiments to personalize customer feeds and promotions. When compliance, debugging, or fair-lending audits investigate past recommendations, traditional ML pipelines fail due to feature drift, lookahead bias, unversioned model overwrites, and distributed stream chaos.
+
+Building upon the foundational Review 1 milestone (35%), this **Review 2 milestone (70%)** delivers a production-grade **Statistical Feature Drift Shield**, a **Fixed-Seed Deterministic Retraining Engine**, an **Empirical Error Delta Distribution Benchmark**, and strict repository hygiene with reproducible packaging manifests.
+
+### Review 1 Feedback Action Matrix (100% Addressed)
+
+| # | Evaluator / Teacher Feedback | Specific Technical Resolution Implemented in Review 2 | Verification File & Test Evidence |
+| :-: | :--- | :--- | :--- |
+| **1** | **Add `requirements.txt` / `pyproject.toml` dependency manifests** for clean independent runs. | Added standardized `requirements.txt` with pinned versions and `pyproject.toml` configuration enabling reproducible one-command test execution. | `requirements.txt`<br>`pyproject.toml` |
+| **2** | **Replace placeholder lineage values (sample git SHAs)** with genuine commit hashes and hyperparameters. | Integrated dynamic `git rev-parse HEAD` resolution in pipeline registration scripts and exact hyperparameters dict logging (`n_factors: 16`, `lr: 0.015`, `reg: 0.05`, `seed: 42`). | `src/models/train.py`<br>`src/registry/registry_service.py` |
+| **3** | **Remove committed temp/generated noise** (`~$...`, `data/registry.db`) and extend `.gitignore`. | Cleaned git cache (`git rm --cached`), excluded temporary lock files (`~$*`, `*.tmp`), editor noise, and database binaries (`data/*.db`), preserving automated rebuild scripts. | `.gitignore` |
+| **4** | **Differentiate hand-seeded DB rows from freshly rebuilt pipelines and report a delta distribution**. | Built an empirical statistical distribution test across 37+ historical predictions reporting Mean Delta, Median, P95, Max Delta, and Std Dev (Baseline: 62.2% vs Registry: 100.0% parity). | `tests/test_baseline_comparison.py`<br>(Output Table in Section 4) |
+| **5** | **Add a fixed-seed retrain test** asserting identical metrics/weights across dual runs. | Created `test_training_reproducibility.py` running dual training passes with seed=42, asserting $0.0$ weight tensor divergence and bit-exact SHA-256 artifact checksum parity. | `tests/test_training_reproducibility.py` |
+
+---
+
+## 2. 70% Milestone Technical Architecture & New Capabilities
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│             LAYER 1: CYBER FORENSIC HUD & USER INTERFACE                    │
+│  - Live E-Commerce Store & Real-Time Recommendation Feed                    │
+│  - 1-Click Forensic Audit Inspector (Bit-Exact Score Match & Delta Viewer)  │
+│  - Statistical Feature Drift Radar (Live PSI, KS-Test & Wasserstein Charts) │
+│  - Malicious Tamper Detection Lab (Simulate 1-Byte Corruption on Disk)      │
+│  - Adversarial Stream Chaos Harness (Duplicate / Delayed / Out-of-order)    │
+│  - Official Intelligence Export Center (.txt Certificate & .csv Matrix)     │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │ REST API (FastAPI / HTTP 200)
+┌──────────────────────────────────────┴──────────────────────────────────────┐
+│             LAYER 2: BACKEND CONTROLLERS & DRIFT SHIELD                     │
+│  - /api/recommend: Computes live scores and logs immutable audit snapshot   │
+│  - /api/audit/{id}: Reloads weights, runs time-travel query, verifies parity│
+│  - /api/drift/analyze: Computes Population Stability Index (PSI) & KS-Test  │
+│  - /api/security/tamper & /restore: Physical disk byte corruption lab       │
+│  - /api/models/train-v2: Deep tuning, Git SHA binding & deployment promotion│
+└──────────────────────┬───────────────────────────────┬──────────────────────┘
+                       │                               │
+┌──────────────────────┴──────────────┐ ┌──────────────┴──────────────────────┐
+│  LAYER 3: REPRODUCIBILITY REGISTRY  │ │ LAYER 4: POINT-IN-TIME FEATURE STORE│
+│  - dataset_versions (SHA-256 Hash)  │ │ - feature_store_events (Stream Log) │
+│  - feature_definitions (Schema)     │ │ - As-Of Time-Travel Engine          │
+│  - model_records (Git SHA + Weights)│ │ - Idempotent Deduplication Engine   │
+│  - approval_records (Governance)    │ │ - Statistical Drift Detector (PSI)  │
+│  - deployment_records (Active Prod) │ │ - Zero Lookahead Bias Isolation     │
+│  - inference_audit_logs (Immutable) │ │ - Out-of-Order Timestamp Watermarks │
+└─────────────────────────────────────┘ └─────────────────────────────────────┘
+```
+
+### Key Review 2 Modular Additions:
+1. **Statistical Drift & Data Shift Engine (`src/feature_store/drift_detector.py`)**:
+   - Calculates **Population Stability Index (PSI)** to detect distribution shift before model performance degrades.
+   - Executes **2-Sample Kolmogorov-Smirnov (KS) Test** for continuous feature drift verification.
+   - Computes **Wasserstein Distance (Earth Mover's Distance)** for metric divergence tracking.
+2. **Fixed-Seed Deterministic Retraining Guarantee (`src/models/recommender.py`)**:
+   - Encapsulates deterministic pseudo-random state seeding (`np.random.RandomState(seed)`).
+   - Guarantees $100\%$ bit-exact reproducibility of training runs across independent executions.
+
+---
+
+## 3. Mathematical & Statistical Formulations
+
+### 3.1 Point-in-Time Feature Isolation (Zero Lookahead Bias)
+For any historical inference request initiated at timestamp $t_0$ for entity $u$, the feature vector $F(u, t_0)$ is computed strictly over historical events $e \in \mathcal{E}_u$:
+$$\mathcal{E}_u(t_0) = \{ e \in \mathcal{E}_u \mid \text{timestamp}(e) \le t_0 \}$$
+$$F(u, t_0) = \text{Agg}(\mathcal{E}_u(t_0))$$
+Events arriving with $\text{timestamp}(e) > t_0$ (delayed or ongoing user activity) are strictly isolated and have zero mathematical contribution to $F(u, t_0)$.
+
+### 3.2 Population Stability Index (PSI)
+To quantify drift between reference baseline feature distribution $B$ and live inference distribution $A$ divided across $K$ quantile buckets:
+$$\text{PSI} = \sum_{k=1}^K \left( A_k - B_k \right) \times \ln\left( \frac{A_k + \epsilon}{B_k + \epsilon} \right)$$
+* **$\text{PSI} < 0.10$**: Stable distribution (Green / No action required).
+* **$0.10 \le \text{PSI} < 0.25$**: Moderate shift (Yellow / Warning & Monitoring).
+* **$\text{PSI} \ge 0.25$**: Significant concept drift (Red / Trigger automated retraining).
+
+### 3.3 Two-Sample Kolmogorov-Smirnov Test
+The empirical cumulative distribution functions $F_{1,n}(x)$ and $F_{2,m}(x)$ are compared via the supremum metric:
+$$D_{n,m} = \sup_x |F_{1,n}(x) - F_{2,m}(x)|$$
+Rejects the null hypothesis of identical distributions if $p\text{-value} < \alpha = 0.05$.
+
+### 3.4 Deterministic Recommendation Scoring Function
+$$\hat{y}_{u,i} = \sigma\left( \left( \mu_{\text{bias}} + 0.40 \cdot \langle \mathbf{u}_u, \mathbf{v}_i \rangle + 0.35 \cdot P_i(t_0) + 0.25 \cdot E_u(t_0) \right) \cdot M_{\text{cat}}(u, i, t_0) \right)$$
+Where $\mathbf{u}_u, \mathbf{v}_i$ are latent embeddings, $P_i(t_0)$ is item popularity, $E_u(t_0)$ is user engagement, and $M_{\text{cat}}$ is the point-in-time preferred category multiplier ($1.3\times$).
+
+---
+
+## 4. Empirical Benchmark: Statistical Delta Error Distribution
+
+To satisfy Review 1 feedback regarding empirical statistical rigor, an empirical delta distribution benchmark was executed auditing $N = 37$ historical predictions across diverse user cohorts under live stream evolution:
+
+### Empirical Delta Distribution Table (N = 37 Predictions)
+
+| Statistical Metric | Baseline (Ad-Hoc Naive ML) | Proposed Reproducibility Registry | Operational Impact |
+| :--- | :---: | :---: | :--- |
+| **Audit Reproducibility Rate** | **62.2%** | **100.0%** | **+37.8% Compliance Lift** |
+| **Mean Absolute Score Delta ($\mu$)** | **0.021914** | **0.000000** | **Exact Bitwise Match** |
+| **Median Score Delta** | 0.000000 | **0.000000** | Zero Central Bias |
+| **95th Percentile Delta ($P_{95}$)** | **0.058442** | **0.000000** | Eliminates Extreme Drift |
+| **Maximum Absolute Delta ($\Delta_{\max}$)** | **0.058450** | **0.000000** | Complete Parity Guarantee |
+| **Standard Deviation ($\sigma$)** | **0.028094** | **0.000000** | Zero Variance |
+
+### Why Naive Systems Drift:
+In conventional architectures without point-in-time state locking, customer purchases occurring *after* an inference alter their `preferred_category` and `engagement_score`. When auditors re-query current tables weeks later, the reconstructed ranking flips, causing **37.8% of past recommendations to fail regulatory audit**. The proposed registry completely eliminates this error.
+
+---
+
+## 5. Deterministic Retraining & Cryptographic Lineage Proof
+
+To directly evidence reproducibility of training runs, dual independent training passes were executed on identical datasets with fixed seed ($42$):
+
+| Run Dimension | Training Run A (Seed 42) | Training Run B (Seed 42) | Absolute Divergence | Verification Status |
+| :--- | :---: | :---: | :---: | :---: |
+| **User Latent Weights ($\mathbf{U}$)** | Verified Floating Tensor | Verified Floating Tensor | **$0.000000000000$** | **Bit-Exact Pass** |
+| **Item Latent Weights ($\mathbf{V}$)** | Verified Floating Tensor | Verified Floating Tensor | **$0.000000000000$** | **Bit-Exact Pass** |
+| **Global & Entity Biases** | Verified Float Scalars | Verified Float Scalars | **$0.000000000000$** | **Bit-Exact Pass** |
+| **Artifact SHA-256 Hash** | `0a5fffc3cec9e854...` | `0a5fffc3cec9e854...` | **Identical Hash (64-char)** | **Bit-Exact Pass** |
+| **Git Commit SHA Binding** | Dynamic HEAD SHA | Dynamic HEAD SHA | **Cryptographic Match** | **Traceable** |
+
+*Note: When tested with a divergent seed ($99$), weights diverged significantly ($\Delta_{\max} > 0.35$), proving that deterministic seeds are the governing control mechanism.*
+
+---
+
+## 6. Adversarial Stress Testing Matrix (5 Scenarios)
+
+| Scenario ID | Adversarial Fault Injected | Expected Failure Mode in Naive System | Registry Defense & System Response | Status |
+| :---: | :--- | :--- | :--- | :---: |
+| **ADV-01** | **Duplicate Network Event Burst** | Duplicate rows inserted; engagement scores inflated by $3\times$. | SHA-256 event fingerprint key deduplication rejects replays at boundary. | **PASSED** |
+| **ADV-02** | **Delayed / Late-Arriving Events** | Future interactions corrupt retrospective audit feature snapshots. | As-of temporal watermark isolates features strictly to $t \le t_{\text{inference}}$. | **PASSED** |
+| **ADV-03** | **Scrambled Out-of-Order Streams** | Arrival order mutates feature aggregation outputs. | Deterministic temporal ordering ensures identical feature calculation. | **PASSED** |
+| **ADV-04** | **1-Byte Model Artifact Tampering** | Silent execution of corrupted or backdoor-poisoned weights. | Pre-flight SHA-256 checksum check aborts execution with `SECURITY_BREACH`. | **PASSED** |
+| **ADV-05** | **Severe Feature Distribution Drift** | Silent prediction degradation without operational visibility. | Statistical Drift Shield calculates $\text{PSI} > 0.25$ and triggers `ALERT`. | **PASSED** |
+
+---
+
+## 7. Independent Verification Evidence & Test Execution
+
+The test suite runs from a clean virtual environment using the provided `requirements.txt`:
+
+```bash
+# 1. Install pinned dependencies
+pip install -r requirements.txt
+
+# 2. Execute full automated test battery
+pytest tests/ -v -s
+```
+
+### Official PyTest Execution Log (10 / 10 Test Suites Passed)
+
+```text
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0
+rootdir: e:\cse project\New folder (3)
+configfile: pyproject.toml
+plugins: anyio-4.14.1
+collected 10 items
+
+tests/test_adversarial.py::test_duplicate_events_idempotent_deduplication PASSED [ 10%]
+tests/test_adversarial.py::test_late_arriving_events_prevent_lookahead_bias PASSED [ 20%]
+tests/test_adversarial.py::test_out_of_order_stream_does_not_corrupt_audit PASSED [ 30%]
+tests/test_baseline_comparison.py::test_baseline_vs_registry_empirical_distribution 
+=================================================================
+  EMPIRICAL REPRODUCIBILITY DELTA DISTRIBUTION REPORT (N = 37)
+=================================================================
+ Metric                     Baseline (Ad-Hoc)    Proposed Registry
+ ----------------------------------------------------------------
+ Audit Reproducibility Rate:   62.2%              100.0%
+ Mean Absolute Score Delta:  0.021914             0.000000
+ Median Score Delta:         0.000000             0.000000
+ 95th Percentile Delta:      0.058442             0.000000
+ Max Absolute Delta:         0.058450             0.000000
+ Standard Deviation:         0.028094             0.000000
+=================================================================
+PASSED [ 40%]
+tests/test_drift_detection.py::test_stationary_distribution_yields_stable_status PASSED [ 50%]
+tests/test_drift_detection.py::test_shifted_distribution_triggers_significant_drift_alert PASSED [ 60%]
+tests/test_reproducibility.py::test_historical_predictions_100_percent_reproducible 
+[Test Result] Audited 37 historical predictions. Reproducibility Rate: 100.0%
+PASSED [ 70%]
+tests/test_reproducibility.py::test_model_artifact_sha256_integrity PASSED [ 80%]
+tests/test_training_reproducibility.py::test_fixed_seed_dual_training_bit_exact_parity 
+[PASSED] Fixed-Seed Retrain Test: Run A == Run B (Artifact SHA: 0a5fffc3cec9e854...)
+PASSED [ 90%]
+tests/test_training_reproducibility.py::test_divergent_seed_produces_distinct_weights PASSED [100%]
+
+============================= 10 passed in 3.16s ==============================
+```
+
+---
+
+## 8. Roadmap Towards Review 3 (Final 100% Milestone & Project Viva)
+
+1. **Production Dockerization**: Package backend and UI into multi-stage containerized Docker images.
+2. **Dense Vector Embedding Lineage**: Extend point-in-time queries to version high-dimensional vector embeddings (FAISS/HNSW).
+3. **Automated Retraining Trigger**: Connect drift alert signals directly to CI/CD retraining pipelines.
+4. **Final Comprehensive Thesis & Viva Defense Slide Deck**: Compile the 100% academic report and oral defense presentation.

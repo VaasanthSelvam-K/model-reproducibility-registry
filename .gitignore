@@ -1,10 +1,29 @@
+# Python bytecode and caches
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
 .pytest_cache/
 .coverage
+htmlcov/
+
+# Virtual environments
 .env
 .venv/
 env/
+venv/
+ENV/
+
+# OS and Editor noise / temporary locks
 ~$*
 *~
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# Database binaries and large artifacts (reproducibly built by pipeline scripts)
+data/*.db
+data/registry.db
+*.sqlite
+*.sqlite3
+data/artifacts/*.tmp
